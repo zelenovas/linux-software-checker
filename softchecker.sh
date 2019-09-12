@@ -17,7 +17,11 @@ function program_is_installed() {
 function program_is_correct() {
   local return_=0
 
-  if $1 --version | grep -q $2; then
+  if $1 --version 2>/dev/null | grep -q $2; then
+    local return_=1
+  elif $1 -v 2>/dev/null | grep -q $2; then
+    local return_=1
+  elif $1 -V 2>/dev/null | grep -q $2; then
     local return_=1
   fi
 
