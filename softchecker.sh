@@ -103,7 +103,7 @@ else
       if [ $is_installed == 1 ]; then
           echo "$appname $appversion $(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
       else
-          echo "$appname $(echo_if $is_installed 'INSTALLED' 'NOT_INSTALLED')"
+          echo "$appname $appversion $(echo_fail 'NOT INSTALLED')"
       fi
 
     elif [[ $line =~ ^([^=]+)=(.*)$ ]]; then
