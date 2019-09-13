@@ -115,18 +115,3 @@ else
     fi
   done <"$CONFIG_FILEPATH"
 fi
-
-# command line programs
-#echo "apache2 $(echo_if $(program_is_installed apache2))"
-#echo "tomita-parser $(echo_if $(program_is_installed tomita-parser))"
-#echo "php $(echo_if $(program_is_installed php))"
-#echo "asterisk $(echo_if $(program_is_installed asterisk))"
-#echo "mysql $(echo_if $(program_is_installed mysql))"
-#echo "deploid $(echo_if $(program_is_installed deploid))"
-#echo "phing $(echo_if $(program_is_installed phing))"
-#echo "composer $(echo_if $(program_is_installed composer))"
-
-# local npm packages
-#echo "lodash  $(echo_if $(npm_package_is_installed lodash))"
-#echo "react   $(echo_if $(npm_package_is_installed react))"
-#echo "angular $(echo_if $(npm_package_is_installed angular))"
