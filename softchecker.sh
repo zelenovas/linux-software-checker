@@ -51,12 +51,16 @@ function echo_fail() {
 }
 
 # display a message in green with a tick by it
-# example
-# echo echo_fail "Yes"
 function echo_pass() {
   # echo first argument in green
   printf "\e[32m${2} ${1}"
   # reset colours back to normal
+  printf "\e[0m"
+}
+
+# display a message in yellow with a tick by it
+function echo_warning() {
+  printf "\e[33m${2} ${1}"
   printf "\e[0m"
 }
 
@@ -68,7 +72,7 @@ function echo_if() {
   if [ $1 == 1 ]; then
     echo_pass $2
   else
-    echo_fail $3
+    echo_warning $3
   fi
 }
 
@@ -78,32 +82,54 @@ if [ -z "$1" ]; then
   echo "Config filename required! Usage: ./softwareChecker.sh /path/to/file.conf"
 else
   CONFIG_FILEPATH=$1
-  #echo $CONFIG_FILEPATH
 
   die() {
     printf >&2 "%s\n" "$@"
     exit 1
   }
 
+
+  regexpAppname="^\s*([[:alnum:]]+):?(.*)$"
   appname=''
-  linenb=0
+  appversion=''
+
+  spacer=2
+  appnameMaxLength=0
+  versionMaxLength=0
   while read line; do
-    ((++linenb))
-
-    #       if [[ $line =~ ^[[:space:]]*$ ]]; then
-    #          continue
-
-    regexpAppname="^\s*([[:alnum:]]+):(.*)$"
     if [[ $line =~ $regexpAppname ]]; then
       appname=${BASH_REMATCH[1]}
       appversion=${BASH_REMATCH[2]}
-      #declare -A $appname
+      if [ "${#appname}" -gt "$appnameMaxLength" ]; then
+          appnameMaxLength=${#appname}
+      fi
+      if [ "${#appversion}" -gt "$versionMaxLength" ]; then
+          versionMaxLength=${#appversion}
+      fi
+    fi
+  done <"$CONFIG_FILEPATH"
+
+  printFormat="%-"$((appnameMaxLength+spacer))"s%-"$((versionMaxLength+spacer))"s%s\n"
+
+  linenb=0
+  while read line; do
+    ((++linenb))
+    if [[ $line =~ $regexpAppname ]]; then
+      appname=${BASH_REMATCH[1]}
+      appversion=${BASH_REMATCH[2]}
+
       is_installed=$(program_is_installed $appname)
 
       if [ $is_installed == 1 ]; then
-          echo "$appname $appversion $(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
+        if [ $appversion == '' ]; then
+          echo "$appname $(echo_pass 'INSTALLED')"
+        else
+#          echo "$appname $appversion $(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
+          printf $printFormat "$appname" "$appversion" "$(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
+        fi
       else
-          echo "$appname $appversion $(echo_fail 'NOT INSTALLED')"
+#          echo "$appname $(echo_fail 'NOT INSTALLED')"
+          printf $printFormat "$appname" "$appversion" "$(echo_fail 'NOT INSTALLED')"
       fi
 
     elif [[ $line =~ ^([^=]+)=(.*)$ ]]; then
