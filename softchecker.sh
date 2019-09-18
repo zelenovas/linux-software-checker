@@ -88,7 +88,7 @@ else
     exit 1
   }
 
-
+  success=0
   regexpAppname="^\s*([[:alnum:]]+):?(.*)$"
   appname=''
   appversion=''
@@ -101,15 +101,15 @@ else
       appname=${BASH_REMATCH[1]}
       appversion=${BASH_REMATCH[2]}
       if [ "${#appname}" -gt "$appnameMaxLength" ]; then
-          appnameMaxLength=${#appname}
+        appnameMaxLength=${#appname}
       fi
       if [ "${#appversion}" -gt "$versionMaxLength" ]; then
-          versionMaxLength=${#appversion}
+        versionMaxLength=${#appversion}
       fi
     fi
   done <"$CONFIG_FILEPATH"
 
-  printFormat="%-"$((appnameMaxLength+spacer))"s%-"$((versionMaxLength+spacer))"s%s\n"
+  printFormat="%-"$((appnameMaxLength + spacer))"s%-"$((versionMaxLength + spacer))"s%s\n"
 
   linenb=0
   while read line; do
@@ -120,16 +120,15 @@ else
 
       is_installed=$(program_is_installed $appname)
 
-      if [ $is_installed == 1 ]; then
-        if [ $appversion == '' ]; then
-          echo "$appname $(echo_pass 'INSTALLED')"
+      if [ "$is_installed" == 1 ]; then
+        if [ -z "$appversion" ] || [ "$appversion" == "*" ]; then
+          success=1
+          printf $printFormat "$appname" "$appversion" "$(echo_pass 'INSTALLED')"
         else
-#          echo "$appname $appversion $(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
           printf $printFormat "$appname" "$appversion" "$(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
         fi
       else
-#          echo "$appname $(echo_fail 'NOT INSTALLED')"
-          printf $printFormat "$appname" "$appversion" "$(echo_fail 'NOT INSTALLED')"
+        printf $printFormat "$appname" "$appversion" "$(echo_fail 'NOT INSTALLED')"
       fi
 
     elif [[ $line =~ ^([^=]+)=(.*)$ ]]; then
