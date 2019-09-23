@@ -88,7 +88,7 @@ else
     exit 1
   }
 
-  success=0
+  exitCode=0 # success exit by default
   regexpAppname="^\s*([[:alnum:]]+):?(.*)$"
   appname=''
   appversion=''
@@ -122,12 +122,16 @@ else
 
       if [ "$is_installed" == 1 ]; then
         if [ -z "$appversion" ] || [ "$appversion" == "*" ]; then
-          success=1
           printf $printFormat "$appname" "$appversion" "$(echo_pass 'INSTALLED')"
         else
-          printf $printFormat "$appname" "$appversion" "$(echo_if $(program_is_correct $appname $appversion) 'CORRECT' 'WRONG')"
+          correct=$(program_is_correct $appname $appversion)
+          if [ $correct == 0 ]; then
+              exitCode=1
+          fi
+          printf $printFormat "$appname" "$appversion" "$(echo_if $correct 'CORRECT' 'WRONG')"
         fi
       else
+        exitCode=1
         printf $printFormat "$appname" "$appversion" "$(echo_fail 'NOT INSTALLED')"
       fi
 
@@ -140,3 +144,5 @@ else
     fi
   done <"$CONFIG_FILEPATH"
 fi
+
+exit $exitCode
