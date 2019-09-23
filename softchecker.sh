@@ -78,6 +78,8 @@ function echo_if() {
 
 # <========== Software Checker Functions
 
+exitCode=0 # success exit by default
+
 if [ -z "$1" ]; then
   echo "Config filename required! Usage: ./softwareChecker.sh /path/to/file.conf"
 else
@@ -88,7 +90,6 @@ else
     exit 1
   }
 
-  exitCode=0 # success exit by default
   regexpAppname="^\s*([[:alnum:]]+):?(.*)$"
   appname=''
   appversion=''
